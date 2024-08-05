@@ -62,9 +62,9 @@ while True:
         new_head = (x + cell_size, y)
 
     # 检查是否撞到墙壁
-    # if new_head[0] < 0 or new_head[0] >= window_width or new_head[1] < 0 or new_head[1] >= window_height:
-    #     pygame.quit()
-    #     sys.exit()
+    if new_head[0] < 0 or new_head[0] >= window_width or new_head[1] < 0 or new_head[1] >= window_height:
+         pygame.quit()
+         sys.exit()
 
 
     # 移除贪吃蛇的尾部
@@ -91,9 +91,9 @@ while True:
     pygame.draw.rect(window, red, (food[0], food[1], cell_size, cell_size))
 
     # 绘制得分
-    # font = pygame.font.Font(None, 36)
-    # text = font.render("Score: " + str(score), True, white)
-    # window.blit(text, (10, 10))
+    font = pygame.font.Font(None, 36)
+    text = font.render("Score: " + str(score), True, white)
+    window.blit(text, (10, 10))
 
     # 更新窗口
     pygame.display.update()
