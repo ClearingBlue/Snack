@@ -1,0 +1,2 @@
+# Snack
+An easy game.
