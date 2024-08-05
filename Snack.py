@@ -16,6 +16,11 @@ black = (0, 0, 0)
 white = (255, 255, 255)
 green = (0, 255, 0)
 red = (255, 0, 0)
+blue = (0, 0, 255)
+
+# 定义加速
+speed_boost_timer = 0
+speed_boost_duration = 3
 
 # 创建游戏窗口
 window = pygame.display.set_mode((window_width, window_height))
@@ -26,6 +31,8 @@ snake = [(200, 200)]
 snake_direction = 'RIGHT'
 food = (random.randint(0, window_width//cell_size-1)*cell_size, 
         random.randint(0, window_height//cell_size-1)*cell_size)
+candy = None
+candy_timer = 0
 
 clock = pygame.time.Clock()
 
@@ -61,22 +68,50 @@ while True:
     elif snake_direction == 'RIGHT':
         new_head = (x + cell_size, y)
 
-    # 检查是否撞到墙壁
+    # 更新糖果产生计时
+    candy_timer += 1
+
+    # 检查糖果产生
+    if candy is None and candy_timer >= random.randint(100,300):  # Adjust the value to control the frequency
+        while True:    
+            new_candy = (random.randint(0, window_width//cell_size-1)*cell_size, 
+                    random.randint(0, window_height//cell_size-1)*cell_size)
+            if new_candy != food:
+                candy = new_candy
+                break
+        candy_timer = 0
+
+
+    # 检查蛇是否穿墙
     if new_head[0] < 0 or new_head[0] >= window_width or new_head[1] < 0 or new_head[1] >= window_height:
-         pygame.quit()
-         sys.exit()
+    # Wrap the snake's position around the game window
+        new_head = (new_head[0] % window_width, new_head[1] % window_height)
+ 
 
-
-    # 移除贪吃蛇的尾部
-    snake.pop()    
-
-    # 检查是否吃到食物
+    # 检查蛇是否吃到食物
     if new_head == food:
         food = (random.randint(0, window_width//cell_size-1)*cell_size, 
                 random.randint(0, window_height//cell_size-1)*cell_size)
-        score += 10  # 增加得分
+        score += 10  
+    # 检查蛇是否吃到糖果
+    elif candy is not None and new_head == candy:
+        candy = None
+        score += 20
+        speed_boost_timer = speed_boost_duration * clock.get_fps()  # 设定加速计时器
+    # 检查蛇是否碰到身体
     else:
-        pass
+        if new_head in snake[1:]:
+            pygame.qui
+            sys.exit
+        else:
+            snake.pop()
+
+ # 处理加速计时器
+    if speed_boost_timer > 0:
+        speed_boost_timer -= 1
+        speed = 20  # 增加速度
+    else:
+        speed = 10  # 恢复正常速度
 
     snake.insert(0, new_head)  # 将新的头部添加到贪吃蛇
 
@@ -89,6 +124,8 @@ while True:
 
     # 绘制食物
     pygame.draw.rect(window, red, (food[0], food[1], cell_size, cell_size))
+    if candy is not None:
+        pygame.draw.rect(window, blue, (candy[0], candy[1], cell_size, cell_size))
 
     # 绘制得分
     font = pygame.font.Font(None, 36)
@@ -98,4 +135,4 @@ while True:
     # 更新窗口
     pygame.display.update()
 
-    clock.tick(10)  # 控制帧率
+    clock.tick(speed)  # 控制帧率
